@@ -9,7 +9,7 @@ let colors = ['#3674be', '#d26181', '#ceb13d', '#c6414c', '#171f2b', '#50aa61'];
 let indexSlider = 0;
 let index = 0;
 
-const BACKEND_URL = "http://localhost:5000/api";
+const BACKEND_URL = "/api";
 
 function toggleAuthForms(event, formType) {
     event.preventDefault();
