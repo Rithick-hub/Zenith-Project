@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "version": 2,
   "builds": [
@@ -20,4 +21,28 @@
       "dest": "frontend/index.html"
     }
   ]
+=======
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/index.html"
+    }
+  ]
+>>>>>>> 5ff2934e8b81099e98cd72b44245a8d06b2eb1be
 }
