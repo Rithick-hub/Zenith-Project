@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Gaming Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body style="background: #11131c; overflow-y: auto;">
+    <div id="admin-login-container" class="login-wrapper">
+        <div class="login-box" style="background: rgba(255, 65, 108, 0.1); border-color: rgba(255, 65, 108, 0.2);">
+            <h2 style="color: #ff416c;"><i class='bx bx-shield-quarter'></i> Admin Portal</h2>
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                <div class="input-field">
+                    <input type="text" id="admin-user" required placeholder="Admin Username">
+                </div>
+                <div class="input-field">
+                    <input type="password" id="admin-pass" required placeholder="Admin Password">
+                </div>
+                <button type="submit" class="login-btn" style="background: #ff416c; color: #fff;">Secure Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-dashboard" class="admin-dashboard-container" style="display: none;">
+        <div class="sidebar">
+            <h2>Store Admin</h2>
+            <ul>
+                <li class="active"><i class='bx bx-grid-alt'></i> Dashboard</li>
+                <li onclick="handleAdminLogout()" style="color: #ff416c; cursor: pointer; margin-top: 50px;"><i class='bx bx-log-out'></i> Logout</li>
+            </ul>
+        </div>
+        <div class="main-content-admin">
+            <header>
+                <h1>Welcome Back, Boss!</h1>
+                <p>Track and manage your store sales and performance metrics here.</p>
+            </header>
+            <div class="stats-grid">
+                <div class="stat-card"><h3>Total Sales</h3><p class="stat-value" id="total-sales">$0.00</p></div>
+                <div class="stat-card"><h3>Orders</h3><p class="stat-value" id="total-orders">0</p></div>
+                <div class="stat-card"><h3>Pending Deliveries</h3><p class="stat-value" id="pending-orders">0</p></div>
+            </div>
+            <div class="orders-table-container">
+                <h3>Recent Orders & Shipping Courier Addresses</h3>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Details</th>
+                            <th>Courier Destination Address</th>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <!-- Dynamic content loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const user = document.getElementById('admin-user').value.trim();
+            const pass = document.getElementById('admin-pass').value.trim();
+            if (user === 'boss' && pass === 'adminboss') {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                showDashboard();
+            } else {
+                alert('Access Denied! Invalid admin credentials.');
+            }
+        }
+        function showDashboard() {
+            document.getElementById('admin-login-container').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'flex';
+            loadDynamicOrders();
+        }
+        function loadDynamicOrders() {
+            const orders = JSON.parse(localStorage.getItem('storeOrders')) || [];
+            const tbody = document.getElementById('orders-tbody');
+            
+            let totalSales = 0;
+            let pendingCount = 0;
+            tbody.innerHTML = "";
+            
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#aaa; padding: 20px;">No orders received yet.</td></tr>`;
+            } else {
+                orders.forEach(order => {
+                    const priceValue = parseFloat(order.price.replace('$', ''));
+                    totalSales += priceValue;
+                    if(order.status === "Pending") pendingCount++;
+                    
+                    const badgeClass = order.method.toLowerCase() === 'gpay' ? 'gpay' : (order.method === 'COD' ? 'cod' : 'card');
+                    const statusClass = order.status === 'Completed' ? 'success' : 'pending';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${order.id}</td>
+                            <td>
+                                <strong>${order.custName || 'Gamer'}</strong><br>
+                                <span style="font-size:12px; color:#aaa;">${order.custPhone || 'N/A'}<br>${order.custEmail || 'N/A'}</span>
+                            </td>
+                            <td style="max-width: 200px; word-wrap: break-word; font-size:13px; color:#ddd;">${order.custAddress || 'N/A'}</td>
+                            <td>${order.product}</td>
+                            <td>${order.price}</td>
+                            <td><span class="pay-badge ${badgeClass}">${order.method}</span></td>
+                            <td><span class="status-badge ${statusClass}">${order.status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('total-sales').innerText = `$${totalSales.toFixed(2)}`;
+            document.getElementById('total-orders').innerText = orders.length;
+            document.getElementById('pending-orders').innerText = pendingCount;
+        }
+        function handleAdminLogout() {
+            sessionStorage.removeItem('isAdminLoggedIn');
+            window.location.reload();
+        }
+        window.onload = function() {
+            if (sessionStorage.getItem('isAdminLoggedIn') === 'true') { showDashboard(); }
+        }
+    </script>
+</body>
+</html>
